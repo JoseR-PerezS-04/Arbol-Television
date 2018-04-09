@@ -1,4 +1,8 @@
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -7,41 +11,26 @@ import com.mxgraph.model.mxGeometry;
 public class View extends JFrame
 {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -2707712944901661771L;
     private mxGraph graph = new mxGraph(){
-
-        // Ports are not used as terminals for edges, they are
-        // only used to compute the graphical connection point
-        public boolean isPort(Object cell)
-        {
+        public boolean isPort(Object cell){
             mxGeometry geo = getCellGeometry(cell);
-
             return (geo != null) ? geo.isRelative() : false;
         }
-
-        // Implements a tooltip that shows the actual
-        // source and target of an edge
         public String getToolTipForCell(Object cell)
         {
             if (model.isEdge(cell))
             {
-                //return convertValueToString(model.getTerminal(cell, true)) + " -> " +
-                        //convertValueToString(model.getTerminal(cell, false));
-                return "Hola";
+                return "";
             }
-
             return super.getToolTipForCell(cell);
         }
-
-        // Removes the folding icon and disables any folding
         public boolean isCellFoldable(Object cell, boolean collapse)
         {
             return false;
-        }
+        }       
     };
+    
     private Object parent = graph.getDefaultParent();
 
     public void inicio(){
@@ -60,6 +49,15 @@ public class View extends JFrame
     public void fin(){
         graph.getModel().endUpdate();
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        graphComponent.getGraphControl().addMouseListener(new MouseAdapter() {
+	        @Override        
+	        public void mousePressed(MouseEvent e) {
+	            Object cell = graphComponent.getCellAt(e.getX(), e.getY());            
+	            if (cell != null) {
+	                Main.estimateNodeDisconection(graph.getLabel(cell));
+	            }
+	        }    
+        });
         getContentPane().add(graphComponent);
     }
 }

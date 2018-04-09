@@ -1,57 +1,89 @@
 import objects.Nodo;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class Main {
 
     static Nodo nodoA, nodoB, nodoC, nodoD, nodoE, nodoF, nodoG, nodoH, nodoI, nodoJ, nodoK, nodoL, nodoM, nodoN, nodoO;
 
-    static float total = 0;
-    static float casas = 0;
-    static String log = "";
+    static float monetaryLosses = 0;
+    static int housesToDisconnect = 0;
+    
+    static int actualNumberOfHouses = 0;
+    static int businessOpportunities = 0;
+    static int actualPresaleCollected = 0;
 
     static View frame;
 
     public static void main(String[] args)
     {
-
-
         frame = new View();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 320);
-        frame.setVisible(true);
+        frame.setSize(1800, 600);
 
         initTree();
-
-        total = 0;
-        casas = 0;
-        desconectarNodo(nodoA, 'D');
-
-        System.out.println("Casas " + casas);
-        System.out.println("Total dinero " + total);
+              
+        frame.setVisible(true);
+        
+        calculateData();
     }
 
-    public static void desconectarNodo(Nodo nodo, char id){
-
+    
+    public static void estimateNodeDisconection(String id){
+    	monetaryLosses = 0;
+        housesToDisconnect = 0;
+        disconnectNode(nodoA, id.charAt(0));
+        
+        JOptionPane.showMessageDialog(null, "Se desconetarian " + housesToDisconnect + " casas \n Se perderian Q." + monetaryLosses);
+    }
+    
+    private static void disconnectNode(Nodo nodo, char id){
         if(nodo.getId() == id){
             System.out.println("Se desconecta el nodo " + nodo.getId());
-
-            log = log + "\n Se desconecta la casa " + nodo.getId();
-            total = total + (nodo.getCasas() * 150);
-            casas = casas + nodo.getCasas();
+            
+            monetaryLosses = monetaryLosses + (nodo.getCasas() * 150);
+            housesToDisconnect = housesToDisconnect + nodo.getCasas();
 
             if(nodo.getNodo1()!=null){
-                desconectarNodo(nodo.getNodo1(), nodo.getNodo1().getId());
-                desconectarNodo(nodo.getNodo2(), nodo.getNodo2().getId());
+            	disconnectNode(nodo.getNodo1(), nodo.getNodo1().getId());
+            	disconnectNode(nodo.getNodo2(), nodo.getNodo2().getId());
             }
         }else{
             if(nodo.getNodo1()!=null){
-                desconectarNodo(nodo.getNodo1(),id);
-                desconectarNodo(nodo.getNodo2(),id);
+            	disconnectNode(nodo.getNodo1(),id);
+            	disconnectNode(nodo.getNodo2(),id);
             }
         }
     }
+    
+    public static void calculateData(){
+    	actualNumberOfHouses = 0;
+        businessOpportunities = 0;
+        actualPresaleCollected = 0;
+        
+        readTree(nodoA);
+        
+        String response = "El numero de casas que existen actualmente en la red es: " + actualNumberOfHouses + 
+        		"\n El numero actual de oportunidades de negocio es de: " + businessOpportunities + 
+        		"\n El numero actual de preventa es de Q." + actualPresaleCollected;
+        
+        JOptionPane.showMessageDialog(null, response);
+    }
 
+    private static void readTree(Nodo nodo){
+    	actualNumberOfHouses = actualNumberOfHouses + nodo.getCasas();
+    	businessOpportunities = businessOpportunities + (10 - nodo.getCasas());
+    	actualPresaleCollected = actualPresaleCollected + (150 * nodo.getCasas());
+    	
+        if(nodo.getNodo1()!=null){
+        	readTree(nodo.getNodo1());
+        	readTree(nodo.getNodo2());
+        }
+    }
+    
     private static void initTree(){
         frame.inicio();
         nodoA = new Nodo('A',null,null,1,0, frame.crearNodo('A', 80, 0));
